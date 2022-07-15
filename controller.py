@@ -31,13 +31,20 @@ class Controller(Asset,Map):
             pygame.time.delay(100)
     
     def map_load(self):
-        print(self.map_data[str(self.level)])
         for row_index,column in enumerate(self.map_data[str(self.level)]):
             for column_index,data in enumerate(column):
                 x=column_index*MIN_SIZE
                 y=row_index*MIN_SIZE
-                if data=='ground':
-                    self.map_component.add(MapComponent(self.tile_image['ground'],(x,y)))
+                if data!='_':
+                    if data=='player':
+                        self.player.add(Player(self.player_images,(x,y)))
+                    if data=='ground':
+                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                    if data=='border':
+                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                    if data=='rotated_border':
+                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+        print(self.map_data[str(self.level)])
     
     def map_editor(self):
         mouse_pos=pygame.mouse.get_pos()
@@ -48,13 +55,13 @@ class Controller(Asset,Map):
             self.map_element_edit_mode.sprite.rect.topleft=(x,y)
         
         self.set_edit_mode_key_input(x,y)
+        self.set_edit_mode_mouse_input(row,column,x,y)
         
         for y in range(56):
             for x in range(64):
                 pygame.draw.rect(self.screen,'#3c3c3c',(x*MIN_SIZE,y*MIN_SIZE,MIN_SIZE,MIN_SIZE),1)
     
     def set_edit_mode_key_input(self,x,y):
-        print(self.map_element)
         key_input=pygame.key.get_pressed()
         if key_input[pygame.K_t]:
             self.map_type='tile'
@@ -81,11 +88,21 @@ class Controller(Asset,Map):
                 self.map_element='rotated_border'
                 self.map_element_edit_mode.add(MapComponent(self.tile_image[self.map_element],(x,y)))
     
-    def set_edit_mode_mouse_input(self):
-        pass
+    def set_edit_mode_mouse_input(self,row,column):
+        mouse_input=pygame.mouse.get_pressed()
+        if mouse_input[0]:
+            if self.map_data[str(self.level)][row][column]=='_':
+                self.map_data[str(self.level)][row][column]=self.map_element
+                pygame.time.delay(100)
+            elif self.map_data[str(self.level)][row][column]!='_':
+                self.map_data[str(self.level)][row][column]='_'
+                pygame.time.delay(100)
+            self.map_load()
+            self.save_map_data()
+            # self.reset_map_data()
     
     def reset_map_data(self):
-        reset=[['_' for _ in range(SCREEN_WIDTH//4)] for _ in range(SCREEN_HEIGHT//4)]
+        reset=[['_' for _ in range(SCREEN_WIDTH//MIN_SIZE)] for _ in range(SCREEN_HEIGHT//MIN_SIZE)]
         with open(os.path.join(MAP_PATH,f'map_level-{self.level}.txt'),'w') as w:
             for n1,i in enumerate(reset):
                 for n2,j in enumerate(i):
@@ -98,7 +115,7 @@ class Controller(Asset,Map):
     
     def save_map_data(self):
         with open(os.path.join(MAP_PATH,f'map_level-{self.level}.txt'),'w') as w:
-            for row,column in self.map_data[str(self.level)]:
+            for row,column in enumerate(self.map_data[str(self.level)]):
                 for index,data in enumerate(column):
                     if index<len(column)-1:
                         w.writelines(data+',')
