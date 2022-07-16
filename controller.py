@@ -11,12 +11,10 @@ class Controller(Asset,Map):
         self.level=1
         Map.__init__(self)
         self.screen=screen
-        self.map_load()
         
         # map_editor
-        self.map_component=pygame.sprite.Group()
         self.map_element_edit_mode=pygame.sprite.GroupSingle()
-        self.player=pygame.sprite.GroupSingle()
+        self.map_load()
         self.map_type='tile'
         self.map_element='ground'
     
@@ -31,20 +29,30 @@ class Controller(Asset,Map):
             pygame.time.delay(100)
     
     def map_load(self):
+        # print(self.map_data[str(self.level)])
+        self.map_component=pygame.sprite.Group()
+        self.player=pygame.sprite.GroupSingle()
+        
         for row_index,column in enumerate(self.map_data[str(self.level)]):
             for column_index,data in enumerate(column):
                 x=column_index*MIN_SIZE
                 y=row_index*MIN_SIZE
-                if data!='_':
-                    if data=='player':
-                        self.player.add(Player(self.player_images,(x,y)))
-                    if data=='ground':
-                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
-                    if data=='border':
-                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
-                    if data=='rotated_border':
-                        self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
-        print(self.map_data[str(self.level)])
+                if data=='player':
+                    self.player.add(Player(self.player_images,(x,y)))
+                if data=='ground':
+                    self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                if data=='border':
+                    self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                if data=='rotated_border':
+                    self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                if data=='block':
+                    self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
+                if data=='ladder1':
+                    self.map_component.add(MapComponent(self.tile_image['ladder'][0],(x,y)))
+                if data=='ladder2':
+                    self.map_component.add(MapComponent(self.tile_image['ladder'][1],(x,y)))
+                if data=='trap':
+                    self.map_component.add(MapComponent(self.tile_image[data],(x,y)))
     
     def map_editor(self):
         mouse_pos=pygame.mouse.get_pos()
@@ -55,7 +63,7 @@ class Controller(Asset,Map):
             self.map_element_edit_mode.sprite.rect.topleft=(x,y)
         
         self.set_edit_mode_key_input(x,y)
-        self.set_edit_mode_mouse_input(row,column,x,y)
+        self.set_edit_mode_mouse_input(row,column)
         
         for y in range(56):
             for x in range(64):
@@ -86,6 +94,22 @@ class Controller(Asset,Map):
         elif key_input[pygame.K_3]:
             if self.map_type=='tile':
                 self.map_element='rotated_border'
+                self.map_element_edit_mode.add(MapComponent(self.tile_image[self.map_element],(x,y)))
+        elif key_input[pygame.K_4]:
+            if self.map_type=='tile':
+                self.map_element='block'
+                self.map_element_edit_mode.add(MapComponent(self.tile_image[self.map_element],(x,y)))
+        elif key_input[pygame.K_5]:
+            if self.map_type=='tile':
+                self.map_element='ladder1'
+                self.map_element_edit_mode.add(MapComponent(self.tile_image['ladder'][0],(x,y)))
+        elif key_input[pygame.K_6]:
+            if self.map_type=='tile':
+                self.map_element='ladder2'
+                self.map_element_edit_mode.add(MapComponent(self.tile_image['ladder'][1],(x,y)))
+        elif key_input[pygame.K_7]:
+            if self.map_type=='tile':
+                self.map_element='trap'
                 self.map_element_edit_mode.add(MapComponent(self.tile_image[self.map_element],(x,y)))
     
     def set_edit_mode_mouse_input(self,row,column):
@@ -128,6 +152,7 @@ class Controller(Asset,Map):
         self.screen.fill('black')
         self.set_key_input()
         self.map_component.draw(self.screen)
+        self.player.update()
         self.player.draw(self.screen)
         if self.game_status=='edit_mode':
             self.map_component.draw(self.screen)
