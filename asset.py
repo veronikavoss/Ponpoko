@@ -7,6 +7,8 @@ class Asset:
         
         self.get_map_component_image()
         self.get_player_image()
+        self.get_enemies_image()
+        self.get_food_image()
     
     def get_map_component_image(self):
         ground=pygame.Surface((8*SCALE,8*SCALE))
@@ -57,3 +59,34 @@ class Asset:
             'up_down':temp[12:15],
             'jump':temp[10:12]
             }
+    
+    def get_enemies_image(self):
+        temp=[]
+        for x in range(8):
+            surface=pygame.Surface((16,14))
+            surface.blit(self.sheet_image,(0,0),(x*24,113,16,14))
+            surface.set_colorkey('#292929')
+            surface=pygame.transform.scale(surface,(16*SCALE,14*SCALE))
+            temp.append(surface)
+        
+        self.enemy_images={'enemy1':temp[0:2],'enemy2':temp[2:4],'enemy3':temp[4:6],'enemy4':temp[6:]}
+    
+    def get_food_image(self):
+        self.food_images={'1':[],'2':[],'3':[]}
+        
+        for y,key in enumerate(self.food_images.keys()):
+            if y<2:
+                n=8
+            else:
+                n=6
+            for x in range(n):
+                surface=pygame.Surface((16,16))
+                surface.blit(self.sheet_image,(0,0),(x*24,y*24+136,16,16))
+                surface.set_colorkey('#292929')
+                surface=pygame.transform.scale(surface,(16*SCALE,16*SCALE))
+                self.food_images[key].append(surface)
+food_images={'1':[1,2,3],'2':[4,5,6],'3':[7,8,9]}
+print(food_images)
+for key,value in food_images.items():
+    print(key,value)
+print('food'+'1'+'-'+'0')

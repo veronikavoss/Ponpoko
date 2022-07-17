@@ -1,14 +1,13 @@
-from pygame import K_DOWN
 from setting import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self,image,pos):
         super().__init__()
         self.status='idle'
-        self.original_image=image
+        self.player_images=image
         self.frame=0
         self.animation_speed=0
-        self.image=self.original_image[self.status]
+        self.image=self.player_images[self.status]
         self.rect=self.image.get_rect(topleft=pos)
         self.direction=self.dx,self.dy=pygame.Vector2(0,0)
         self.move_speed=4
@@ -43,7 +42,7 @@ class Player(pygame.sprite.Sprite):
                     self.animation_speed=0
     
     def animate(self):
-        animation=self.original_image[self.status]
+        animation=self.player_images[self.status]
         print(self.status)
         
         if type(animation)==list:
